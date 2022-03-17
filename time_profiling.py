@@ -6,11 +6,7 @@ import sys
 
 
 path_to_dir = sys.argv[2]
-
-
-def clean():
-    import os
-    os.system('firedrake-clean')
+run = sys.argv[3]
 
   
 def problem():
@@ -60,8 +56,4 @@ def timing(path_to_dir):
 commit = sys.argv[1]
 log = PETSc.Log.isActive()
 
-clean()
-# warm up run
-timing(f"{path_to_dir}time_log{log}_compile_{commit}.txt")
-# warmed up run    
-timing(f"{path_to_dir}time_log{log}_compute_{commit}.txt")
+timing(f"{path_to_dir}time_log{log}_{run}_{commit}.txt")
