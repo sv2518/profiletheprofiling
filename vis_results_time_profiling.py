@@ -15,10 +15,10 @@ def read_times(path_to_file):
 
 def plot(lTrue, lFalse, title, avgTrue, avgFalse):
     fig = plt.figure(figsize=(9,6))
-    plt.plot(lTrue[0], label="Ids in C, logged, avg %fs"%(avgTrue[0]))
-    plt.plot(lFalse[0], label="Ids in C, not logged, avg %fs"%(avgFalse[0]))
-    plt.plot(lTrue[1], label="Ids in Python, logged, avg %fs"%(avgTrue[1]))
-    plt.plot(lFalse[1], label="Ids in Python, not logged, avg %fs"%(avgFalse[1]))
+    plt.plot(lTrue[0], "-x", label="Ids in C, logged, avg %fs"%(avgTrue[0]))
+    plt.plot(lFalse[0], "-o", label="Ids in C, not logged, avg %fs"%(avgFalse[0]))
+    plt.plot(lTrue[1], "-*", label="Ids in Python, logged, avg %fs"%(avgTrue[1]))
+    plt.plot(lFalse[1], ".", label="Ids in Python, not logged, avg %fs"%(avgFalse[1]))
     plt.xlabel("Number of run")
     plt.ylabel("Time [s]")
     plt.legend()
@@ -27,7 +27,7 @@ def plot(lTrue, lFalse, title, avgTrue, avgFalse):
     plt.savefig(path_to_dir + "results.png")
     plt.show()
 
-
+# collect and compute data
 avg_diff_compile = np.zeros(2)
 avg_diff_compute = np.zeros(2)
 perc_diff_compute = np.zeros(2)
@@ -57,9 +57,10 @@ for i, commit in enumerate(["old", "new"]):
     logTrue_compute += [times_logTrue]
     logFalse_compute += [times_logFalse]
 
-
 perc_speedup_compute = 100*(1 - avg_logTrue_compute[1]/avg_logTrue_compute[0])
 abs_speedup_compute = avg_logTrue_compute[0]-avg_logTrue_compute[1]
+
+# plot and print results
 if PLOT:
     title = (f"""How much faster is run with no logging compared to with logging when ids set in C? \nabsolut {avg_diff_compute[0]:3.4}, percent  {perc_diff_compute[0]:3.4}\n"""
             f"""How much faster is run with no logging compared to with logging when ids set in python?\nabsolut {avg_diff_compute[1]:3.4}, percent {perc_diff_compute[1]:3.4}\n""" 
