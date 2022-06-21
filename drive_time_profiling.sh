@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # choose which problem to profile
-PROBLEM="problem2"
+PROBLEM="problem1"
 
 # set working repo automatically, but you need to set the path to your firedrake install
 MYDIR=$HOME/firedrakeexamples/profiletheprofiling/"$PROBLEM"/
@@ -17,11 +17,12 @@ if [ "$PROBLEM" = "problem1" ]; then
     cd "$FDDIR"src/PyOP2
     git fetch $PERFORM_COMMIT
     git checkout $PERFORM_COMMIT
+    N=20
 else
     # problem2 profiles also the profiling of all local kernels (e.g. forms for TSFC)
     # so the corresponding commits in firedrake and tsfc also have to be updated
     # if code is force pushed to the branches the base commits have to be updated
-    BASE_COMMITS_PTF=(676c3e72e66105ec2943af47b303df7ef6790c33  a4212334008c325a4daeb97c93e89946705717f9 4560f9f017cc01a11cc50564d108b0d67aca137b)
+    BASE_COMMITS_PTF=(3e5a09c5edbbd9739edf29a5bdbb006c8d8a5537  9a9ab94f255b277c1b6b53e6f41ea02dd9df3926 9a9ab94f255b277c1b6b53e6f41ea02dd9df3926)
     PERFORM_COMMIT=sv/profiling-local-kernels-trackevents
     cd "$FDDIR"src/PyOP2
     git fetch origin $PERFORM_COMMIT
@@ -31,7 +32,8 @@ else
     git checkout $PERFORM_COMMIT 
     cd "$FDDIR"src/tsfc
     git fetch origin $PERFORM_COMMIT
-    git checkout $PERFORM_COMMIT 
+    git checkout $PERFORM_COMMIT
+    N=10
 fi
 
 # Take care, rerunning will remove previous results
@@ -41,7 +43,12 @@ rm "$MYDIR"flame*.txt
 
 # Run timings on commit which does not allocate ids from python
 if [ "$PROBLEM" = "problem1" ]; then
+    cd "$FDDIR"src/PyOP2
     git checkout $BASE_COMMIT
+    cd "$FDDIR"src/tsfc
+    git checkout master
+    cd "$FDDIR"src/firedrake
+    git checkout master
 else
     cd "$FDDIR"src/PyOP2
     git checkout "${BASE_COMMITS_PTF[0]}"
@@ -51,7 +58,7 @@ else
     git checkout "${BASE_COMMITS_PTF[2]}"
 fi
 
-for l in $(seq 10)
+for l in $(seq $N)
 do
     firedrake-clean
     python3 $MYDIR../time_profiling.py "old" $MYDIR "compile" $PROBLEM
@@ -78,7 +85,8 @@ else
     cd "$FDDIR"src/firedrake
     git checkout $PERFORM_COMMIT
 fi
-for l in $(seq 10)
+
+for l in $(seq $N)
 do
     firedrake-clean
     python3 $MYDIR../time_profiling.py "new" $MYDIR "compile" $PROBLEM
